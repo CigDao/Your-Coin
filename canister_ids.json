@@ -1,11 +1,14 @@
 {
     "community": {
-        "ic": "fmnvu-iqaaa-aaaal-abawa-cai"
+        "ic": "fppg4-cyaaa-aaaap-aanza-cai"
     },
     "token": {
         "ic": "5gxp5-jyaaa-aaaag-qarma-cai"
     },
-    "dip721_communitycoin_assets": {
-        "ic": "blka3-liaaa-aaaag-aasaa-cai"
+    "database": {
+        "ic": "rmc3i-vqaaa-aaaal-qbfqq-cai"
+    },
+    "reflectionDatabase": {
+        "ic": "xa3um-eqaaa-aaaap-aaoyq-cai"
     }
 }

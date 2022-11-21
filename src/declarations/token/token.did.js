@@ -13,25 +13,7 @@ export const idlFactory = ({ IDL }) => {
       'AmountTooSmall' : IDL.Null,
     }),
   });
-  const TxReceipt__1 = IDL.Variant({
-    'Ok' : IDL.Nat,
-    'Err' : IDL.Variant({
-      'InsufficientAllowance' : IDL.Null,
-      'InsufficientBalance' : IDL.Null,
-      'ErrorOperationStyle' : IDL.Null,
-      'Unauthorized' : IDL.Null,
-      'LedgerTrap' : IDL.Null,
-      'ErrorTo' : IDL.Null,
-      'Other' : IDL.Text,
-      'BlockUsed' : IDL.Null,
-      'AmountTooSmall' : IDL.Null,
-    }),
-  });
-  const Holder = IDL.Record({
-    'receipt' : TxReceipt__1,
-    'holder' : IDL.Principal,
-    'amount' : IDL.Nat,
-  });
+  const Holder = IDL.Record({ 'holder' : IDL.Text, 'amount' : IDL.Nat });
   const Metadata = IDL.Record({
     'fee' : IDL.Nat,
     'decimals' : IDL.Nat8,
@@ -50,6 +32,40 @@ export const idlFactory = ({ IDL }) => {
     'cycles' : IDL.Nat,
     'feeTo' : IDL.Principal,
   });
+  const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
+  const Request = IDL.Record({
+    'url' : IDL.Text,
+    'method' : IDL.Text,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HeaderField),
+  });
+  const StreamingCallbackToken = IDL.Record({
+    'key' : IDL.Nat32,
+    'sha256' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'index' : IDL.Nat32,
+    'content_encoding' : IDL.Text,
+  });
+  const StreamingCallbackResponse = IDL.Record({
+    'token' : IDL.Opt(StreamingCallbackToken),
+    'body' : IDL.Vec(IDL.Nat8),
+  });
+  const StreamingCallback = IDL.Func(
+      [StreamingCallbackToken],
+      [StreamingCallbackResponse],
+      ['query'],
+    );
+  const StreamingStrategy = IDL.Variant({
+    'Callback' : IDL.Record({
+      'token' : StreamingCallbackToken,
+      'callback' : StreamingCallback,
+    }),
+  });
+  const Response = IDL.Record({
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HeaderField),
+    'streaming_strategy' : IDL.Opt(StreamingStrategy),
+    'status_code' : IDL.Nat16,
+  });
   const Token = IDL.Service({
     'allowance' : IDL.Func(
         [IDL.Principal, IDL.Principal],
@@ -60,6 +76,7 @@ export const idlFactory = ({ IDL }) => {
     'balanceOf' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'bulkTransfer' : IDL.Func([IDL.Vec(Holder)], [IDL.Vec(Holder)], []),
     'burn' : IDL.Func([IDL.Nat], [TxReceipt], []),
+    'chargeTax' : IDL.Func([IDL.Principal, IDL.Nat], [TxReceipt], []),
     'communityTransfer' : IDL.Func([IDL.Principal, IDL.Nat], [TxReceipt], []),
     'decimals' : IDL.Func([], [IDL.Nat8], ['query']),
     'getAllowanceSize' : IDL.Func([], [IDL.Nat], ['query']),
@@ -77,6 +94,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'historySize' : IDL.Func([], [IDL.Nat], ['query']),
+    'http_request' : IDL.Func([Request], [Response], ['query']),
     'logo' : IDL.Func([], [IDL.Text], ['query']),
     'mint' : IDL.Func([IDL.Principal, IDL.Nat], [TxReceipt], []),
     'name' : IDL.Func([], [IDL.Text], ['query']),
@@ -93,6 +111,7 @@ export const idlFactory = ({ IDL }) => {
         [TxReceipt],
         [],
       ),
+    'updateTransactionPercentage' : IDL.Func([IDL.Float64], [], []),
   });
   return Token;
 };
